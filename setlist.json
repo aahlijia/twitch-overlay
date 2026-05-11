@@ -1,0 +1,51 @@
+[
+  {
+    "game": "Sonic the Hedgehog 2",
+    "songs": [
+      "Chemical Plant"
+    ]
+  },
+  {
+    "game": "Sonic Adventures 2",
+    "songs": [
+      "Escape from the City",
+      "Knuckle's Theme"
+    ]
+  },
+  {
+    "game": "Mega Man 2",
+    "songs": [
+      "Dr. Wily Stage 1"
+    ]
+  },
+  {
+    "game": "Mega Man X",
+    "songs": [
+      "Storm Eagle"
+    ]
+  },
+  {
+    "game": "Super Mario Bros.",
+    "songs": [
+      "Underground Theme"
+    ]
+  },
+  {
+    "game": "Pokemon",
+    "songs": [
+      "Theme"
+    ]
+  },
+  {
+    "game": "Spongebob",
+    "songs": [
+      "Ripped Pants"
+    ]
+  },
+  {
+    "game": "Sonic Adventure",
+    "songs": [
+      "Unknown from M.E."
+    ]
+  }
+]

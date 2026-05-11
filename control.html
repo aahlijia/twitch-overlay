@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Now Playing — Control</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #111;
+      color: #eee;
+      font-family: system-ui, sans-serif;
+      padding: 20px 16px 40px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    h1 { font-size: 18px; margin-bottom: 4px; }
+
+    .subtitle {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 24px;
+    }
+
+    /* ── Section headers ── */
+    .section-header {
+      font-size: 11px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    section { margin-bottom: 28px; }
+
+    /* ── Game tabs ── */
+    #game-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .game-tab {
+      padding: 7px 12px;
+      font-size: 12px;
+      background: #222;
+      border: 1px solid #333;
+      border-radius: 20px;
+      color: #ccc;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .game-tab:hover { border-color: #555; color: #fff; }
+
+    .game-tab.active {
+      background: #ffe066;
+      border-color: #ffe066;
+      color: #111;
+      font-weight: 600;
+    }
+
+    /* ── Song list ── */
+    #song-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .song-btn {
+      width: 100%;
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 14px;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 6px;
+      color: #ddd;
+      cursor: pointer;
+    }
+
+    .song-btn:hover { background: #252525; border-color: #444; color: #fff; }
+
+    .song-btn.active {
+      border-color: #ffe066;
+      color: #ffe066;
+      background: #1f1d10;
+    }
+
+    #no-game-selected {
+      font-size: 13px;
+      color: #555;
+      padding: 10px 0;
+    }
+
+    /* ── Manual input ── */
+    label {
+      display: block;
+      font-size: 12px;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 11px 14px;
+      font-size: 15px;
+      background: #222;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #fff;
+      margin-bottom: 14px;
+      outline: none;
+    }
+
+    input[type="text"]:focus { border-color: #ffe066; }
+
+    /* ── Buttons ── */
+    .button-row { display: flex; gap: 8px; margin-bottom: 10px; }
+
+    button {
+      flex: 1;
+      padding: 13px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #btn-show { background: #ffe066; color: #111; }
+    #btn-hide { background: #2a2a2a; color: #aaa; }
+
+    #btn-save-preset {
+      width: 100%;
+      margin-top: 2px;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      background: #1a2a1a;
+      border: 1px solid #3a5a3a;
+      border-radius: 6px;
+      color: #7c7;
+      cursor: pointer;
+    }
+
+    #btn-save-preset:hover { background: #1f331f; }
+
+    /* ── Status ── */
+    #status {
+      font-size: 13px;
+      color: #888;
+      text-align: center;
+      min-height: 20px;
+      margin: 10px 0 0;
+    }
+
+    #status.ok  { color: #5c5; }
+    #status.err { color: #e55; }
+
+    /* ── Currently on stream ── */
+    .current-box {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 6px;
+      padding: 14px;
+    }
+
+    #current-game { font-size: 15px; color: #ffe066; margin-bottom: 4px; }
+    #current-song { font-size: 13px; color: #ccc; }
+  </style>
+</head>
+<body>
+  <h1>Now Playing</h1>
+  <p class="subtitle">Update the stream overlay from any device on the network.</p>
+
+  <!-- ── Preset browser ── -->
+  <section>
+    <div class="section-header">Setlist Presets</div>
+    <div id="game-tabs"><span style="color:#555;font-size:13px">Loading...</span></div>
+    <div id="song-list">
+      <div id="no-game-selected">Select a game above to see its songs.</div>
+    </div>
+  </section>
+
+  <!-- ── Manual input ── -->
+  <section>
+    <div class="section-header">Manual / Custom</div>
+
+    <label for="manual-game">Game / Franchise</label>
+    <input type="text" id="manual-game" placeholder="e.g. Sonic the Hedgehog 2" />
+
+    <label for="manual-song">Song (optional)</label>
+    <input type="text" id="manual-song" placeholder="e.g. Chemical Plant Zone" />
+
+    <div class="button-row">
+      <button id="btn-show">Show on Stream</button>
+      <button id="btn-hide">Hide</button>
+    </div>
+
+    <button id="btn-save-preset">+ Save to Presets</button>
+
+    <div id="status"></div>
+  </section>
+
+  <!-- ── Current state ── -->
+  <section>
+    <div class="section-header">Currently on Stream</div>
+    <div class="current-box">
+      <div id="current-game">—</div>
+      <div id="current-song"></div>
+    </div>
+  </section>
+
+  <script>
+    const manualGame = document.getElementById("manual-game");
+    const manualSong = document.getElementById("manual-song");
+    const statusEl   = document.getElementById("status");
+    const currentGame = document.getElementById("current-game");
+    const currentSong = document.getElementById("current-song");
+    const gameTabs   = document.getElementById("game-tabs");
+    const songList   = document.getElementById("song-list");
+
+    let setlist = [];
+    let activeGame = null;
+    let activeSong = null;
+
+    // ── Status helper ──────────────────────────────────────────────
+    function setStatus(msg, type = "ok") {
+      statusEl.textContent = msg;
+      statusEl.className = type;
+      setTimeout(() => { statusEl.textContent = ""; statusEl.className = ""; }, 3000);
+    }
+
+    // ── Overlay state ──────────────────────────────────────────────
+    function refreshCurrent(state) {
+      currentGame.textContent = state.visible ? (state.game || "—") : "(hidden)";
+      currentSong.textContent = state.song || "";
+    }
+
+    async function sendUpdate(payload) {
+      try {
+        const res = await fetch("/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.ok) {
+          setStatus("Updated!", "ok");
+          refreshCurrent(data.state);
+        }
+      } catch (e) {
+        setStatus("Could not reach server.", "err");
+      }
+    }
+
+    // ── Preset UI ──────────────────────────────────────────────────
+    function renderGameTabs() {
+      gameTabs.innerHTML = "";
+      setlist.forEach(entry => {
+        const btn = document.createElement("button");
+        btn.className = "game-tab" + (entry.game === activeGame ? " active" : "");
+        btn.textContent = entry.game;
+        btn.addEventListener("click", () => selectGame(entry.game));
+        gameTabs.appendChild(btn);
+      });
+    }
+
+    function renderSongList() {
+      songList.innerHTML = "";
+
+      if (!activeGame) {
+        songList.innerHTML = '<div id="no-game-selected">Select a game above to see its songs.</div>';
+        return;
+      }
+
+      const entry = setlist.find(e => e.game === activeGame);
+      if (!entry) return;
+
+      entry.songs.forEach(song => {
+        const btn = document.createElement("button");
+        btn.className = "song-btn" + (song === activeSong ? " active" : "");
+        btn.textContent = song;
+        btn.addEventListener("click", () => selectSong(song));
+        songList.appendChild(btn);
+      });
+    }
+
+    function selectGame(game) {
+      activeGame = game;
+      activeSong = null;
+      renderGameTabs();
+      renderSongList();
+    }
+
+    function selectSong(song) {
+      activeSong = song;
+      renderSongList();
+      // Also populate manual fields so user can tweak before sending if needed
+      manualGame.value = activeGame;
+      manualSong.value = song;
+      // Send immediately
+      sendUpdate({ game: activeGame, song, visible: true });
+    }
+
+    // ── Load setlist from server ───────────────────────────────────
+    async function loadSetlist() {
+      try {
+        const res = await fetch("/setlist");
+        setlist = await res.json();
+        renderGameTabs();
+        renderSongList();
+      } catch (e) {
+        gameTabs.innerHTML = '<span style="color:#e55;font-size:13px">Could not load setlist.</span>';
+      }
+    }
+
+    // ── Save new song to presets ───────────────────────────────────
+    document.getElementById("btn-save-preset").addEventListener("click", async () => {
+      const game = manualGame.value.trim();
+      const song = manualSong.value.trim();
+      if (!game || !song) {
+        setStatus("Enter a game and song to save.", "err");
+        return;
+      }
+      try {
+        const res = await fetch("/setlist/add-song", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ game, song })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          setlist = data.setlist;
+          setStatus(`Saved "${song}" to presets!`, "ok");
+          // If the active game matches, re-render song list
+          if (game.toLowerCase() === (activeGame || "").toLowerCase()) {
+            renderSongList();
+          } else {
+            selectGame(setlist.find(e => e.game.toLowerCase() === game.toLowerCase())?.game || activeGame);
+          }
+          renderGameTabs();
+        }
+      } catch (e) {
+        setStatus("Could not save preset.", "err");
+      }
+    });
+
+    // ── Manual show/hide ──────────────────────────────────────────
+    document.getElementById("btn-show").addEventListener("click", () => {
+      sendUpdate({
+        game: manualGame.value.trim(),
+        song: manualSong.value.trim(),
+        visible: true
+      });
+    });
+
+    document.getElementById("btn-hide").addEventListener("click", () => {
+      sendUpdate({ visible: false });
+    });
+
+    [manualGame, manualSong].forEach(el => {
+      el.addEventListener("keydown", e => {
+        if (e.key === "Enter") document.getElementById("btn-show").click();
+      });
+    });
+
+    // ── Init ──────────────────────────────────────────────────────
+    loadSetlist();
+    fetch("/state").then(r => r.json()).then(refreshCurrent).catch(() => {});
+  </script>
+</body>
+</html>
