@@ -8,6 +8,8 @@ app = Flask(__name__)
 CORS(app)
 
 SETLIST_PATH = os.path.join(os.path.dirname(__file__), "setlist.json")
+RECENTS_PATH = os.path.join(os.path.dirname(__file__), "recents.json")
+RECENTS_MAX = 4
 
 # In-memory state — resets when the server restarts
 state = {"game": "", "song": "", "visible": False}
@@ -21,6 +23,39 @@ def load_setlist():
 def save_setlist(data):
     with open(SETLIST_PATH, "w") as f:
         json.dump(data, f, indent=2)
+
+
+def load_recents():
+    if not os.path.exists(RECENTS_PATH):
+        return []
+
+    with open(RECENTS_PATH, "r") as f:
+        return json.load(f)
+
+
+def save_recents(data):
+    with open(RECENTS_PATH, "w") as f:
+        json.dump(data, f, indent=2)
+
+
+def add_recent(game, song):
+    """Upsert (game, song) into recents, move-to-front, capped at 4."""
+    recents = load_recents()
+
+    recents = [
+        entry
+        for entry in recents
+        if not (
+            entry["game"].lower() == game.lower()
+            and entry["song"].lower() == song.lower()
+        )
+    ]
+
+    recents.insert(0, {"game": game, "song": song})
+    recents = recents[:RECENTS_MAX]
+
+    save_recents(recents)
+    return recents
 
 
 @app.route("/overlay")
@@ -51,12 +86,21 @@ def update():
     if "visible" in data:
         state["visible"] = data["visible"]
 
-    return jsonify({"ok": True, "state": state})
+    recents = load_recents()
+    if state["visible"] and state["game"]:
+        recents = add_recent(state["game"], state["song"])
+
+    return jsonify({"ok": True, "state": state, "recents": recents})
 
 
 @app.route("/setlist")
 def get_setlist():
     return jsonify(load_setlist())
+
+
+@app.route("/recents")
+def get_recents():
+    return jsonify(load_recents())
 
 
 @app.route("/setlist/add-song", methods=["POST"])
